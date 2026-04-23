@@ -151,6 +151,10 @@ export default function StatusPage() {
                     {/* Connection Dots 1 */}
                     <div className={`${styles.connectionLine} ${styles.horizontal} ${styles[getConnectionState(0)]}`}>
                         <div className={styles.dotsContainer}>
+                            {
+                                // 16 dots for the connection line, animated via CSS
+                                
+                            }
                             <div className={`${styles.dot} ${styles.dot1}`}></div>
                             <div className={`${styles.dot} ${styles.dot2}`}></div>
                             <div className={`${styles.dot} ${styles.dot3}`}></div>
