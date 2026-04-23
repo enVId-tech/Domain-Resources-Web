@@ -1,0 +1,551 @@
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes glitch {
+  0% {
+    text-shadow: 1px 0 #0f0, -1px 0 #f00;
+  }
+  25% {
+    text-shadow: -1px 0 #0f0, 1px 0 #f00;
+  }
+  50% {
+    text-shadow: 1px 1px #0f0, -1px -1px #f00;
+  }
+  75% {
+    text-shadow: -1px 1px #0f0, 1px -1px #f00;
+  }
+  100% {
+    text-shadow: 1px 0 #0f0, -1px 0 #f00;
+  }
+}
+
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(0, 255, 0, 0.8);
+  }
+}
+
+@keyframes scanline {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes flowPulse {
+  0%, 100% {
+    stroke-dashoffset: 1000;
+    opacity: 0.3;
+  }
+  50% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes nodeGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 10px rgba(0, 255, 0, 0.5));
+  }
+  50% {
+    filter: drop-shadow(0 0 25px rgba(0, 255, 0, 0.9));
+  }
+}
+
+@keyframes dataFlow {
+  0% {
+    offset-distance: 0%;
+  }
+  100% {
+    offset-distance: 100%;
+  }
+}
+
+.errorContainer {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  background: #000;
+  padding: 2rem;
+}
+
+.matrixCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.errorContent {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 1200px;
+  animation: fadeIn 0.8s ease-out;
+}
+
+.errorBox {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3rem;
+}
+
+.errorIcon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 2rem;
+  border: 3px solid rgb(226, 0, 0);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.exclamation {
+  font-size: 3rem;
+  font-weight: bold;
+  color: rgb(226, 0, 0);
+  font-family: monospace;
+}
+
+.errorTitle {
+  font-size: clamp(1.75rem, 5vw, 2.5rem);
+  color: #0f0;
+  text-align: center;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.2rem;
+  animation: glitch 3s step-start infinite;
+}
+
+.errorCode {
+  font-family: 'Courier New', monospace;
+  color: #0f0;
+  text-align: center;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.8;
+  letter-spacing: 0.1rem;
+}
+
+.errorMessage {
+  color: #0f0;
+  font-family: 'Courier New', monospace;
+  font-size: clamp(0.9rem, 2.5vw, 1rem);
+  line-height: 1.6;
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  border-radius: 4px;
+  background: rgba(0, 255, 0, 0.05);
+}
+
+.errorDigest {
+  font-family: 'Courier New', monospace;
+  color: #0f0;
+  font-size: 0.85rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  opacity: 0.7;
+  
+  span {
+    opacity: 0.9;
+    font-weight: bold;
+  }
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.retryButton,
+.homeButton {
+  flex: 1;
+  min-width: 140px;
+  padding: 1rem 1.5rem;
+  background: transparent;
+  border: 2px solid #0f0;
+  color: #0f0;
+  font-family: 'Courier New', monospace;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.15rem;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 255, 0, 0.1);
+    transition: left 0.3s ease;
+  }
+  
+  &:hover::before {
+    left: 0;
+  }
+  
+  &:hover {
+    background: rgba(0, 255, 0, 0.1);
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+    transform: translateY(-2px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.buttonPrefix {
+  margin-right: 0.5rem;
+  opacity: 0.7;
+}
+
+.terminal {
+  margin-top: 2rem;
+  padding: 1rem;
+  background: rgba(0, 255, 0, 0.03);
+  border: 1px solid rgba(0, 255, 0, 0.2);
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+}
+
+.terminalLine {
+  color: #0f0;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.prompt {
+  color: #0f0;
+  margin-right: 0.5rem;
+  font-weight: bold;
+}
+
+.visible {
+  animation: blink 1s step-end infinite;
+}
+
+.terminalBreak {
+  display: block;
+  margin: 1.5rem 0;
+}
+
+// Network Diagram Styles
+.networkDiagram {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+  overflow: hidden;
+  padding: 0;
+}
+
+.networkNode {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+  flex: 1;
+  min-width: 140px;
+  animation: nodeGlow 3s ease-in-out infinite;
+  z-index: 2;
+
+  &.active {
+    animation: nodeGlow 1.5s ease-in-out infinite;
+  }
+}
+
+.nodeIcon {
+  width: 100px;
+  height: 100px;
+  border: 2px solid #0f0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 255, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+  font-size: 3rem;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      45deg,
+      transparent,
+      rgba(0, 255, 0, 0.1),
+      transparent
+    );
+    animation: scanline 3s linear infinite;
+  }
+}
+
+.nodeLabel {
+  color: #0f0;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  font-weight: bold;
+  text-align: center;
+  letter-spacing: 0.1rem;
+  text-transform: uppercase;
+}
+
+.nodeStatus {
+  color: #0f0;
+  font-family: 'Courier New', monospace;
+  font-size: 0.75rem;
+  opacity: 0.7;
+  text-align: center;
+}
+
+.connectionLine {
+  position: relative;
+  height: 3px;
+  background: #0f0;
+  top: auto;
+  transform: none;
+  z-index: 1;
+  flex: 0 0 80px;
+  pointer-events: none;
+
+  &.horizontal {
+    width: 80px;
+    height: 3px;
+    left: 0;
+    right: auto;
+    margin: 0;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    right: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 8px solid #0f0;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+  }
+}
+
+.statusTitle {
+  color: #0f0;
+  font-family: 'Courier New', monospace;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 1rem;
+  letter-spacing: 0.15rem;
+  animation: glitch 4s step-start infinite;
+}
+
+.statusMessage {
+  color: #0f0;
+  font-family: 'Courier New', monospace;
+  font-size: 0.95rem;
+  text-align: center;
+  max-width: 600px;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  border-radius: 4px;
+  background: rgba(0, 255, 0, 0.05);
+}
+
+.statusCode {
+  color: #0f0;
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  margin-top: 1rem;
+  opacity: 0.7;
+  text-align: center;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.actionButton {
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: 2px solid #0f0;
+  color: #0f0;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.1rem;
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 255, 0, 0.1);
+    transition: left 0.3s ease;
+  }
+
+  &:hover::before {
+    left: 0;
+  }
+
+  &:hover {
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .errorContent {
+    padding: 1rem;
+  }
+  
+  .errorBox {
+    padding: 2rem 1.5rem;
+  }
+  
+  .buttonGroup {
+    flex-direction: column;
+  }
+  
+  .retryButton,
+  .homeButton {
+    width: 100%;
+  }
+  
+  .errorIcon {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .exclamation {
+    font-size: 2rem;
+  }
+  
+  .errorTitle {
+    letter-spacing: 0.1rem;
+  }
+
+  .networkDiagram {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .connectionLine {
+    display: none;
+  }
+
+  .nodeIcon {
+    width: 80px;
+    height: 80px;
+    font-size: 2rem;
+  }
+
+  .statusTitle {
+    font-size: 1.25rem;
+  }
+
+  .actionButtons {
+    flex-direction: column;
+    width: 100%;
+
+    .actionButton {
+      width: 100%;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .errorContainer *,
+  .errorContainer *::before,
+  .errorContainer *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

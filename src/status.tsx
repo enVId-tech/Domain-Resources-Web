@@ -1,32 +1,20 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import styles from './styles/error.module.scss';
+import styles from './styles/status.module.scss';
 
 export default function StatusPage() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [promptLines, setPromptLines] = useState<string[]>([
-        '',
-        'Analyzing status...',
-        'Checking system logs...',
-        `Host status: unreachable`,
-        'Please try again later.'
-    ]);
-    const [currentLine, setCurrentLine] = useState<number>(0);
-    const [currentPrompt, setCurrentPrompt] = useState<string>(promptLines[0]);
-    const [errorCode, setErrorCode] = useState<string>('00000');
     const [mounted, setMounted] = useState(false);
-    const cursorRef = useRef<HTMLSpanElement>(null);
+    const [hostName, setHostName] = useState<string>('loading...');
+    const [errorCode, setErrorCode] = useState<string>('00000');
+    const [activeNode, setActiveNode] = useState<number>(1);
 
     useEffect(() => {
         setMounted(true);
         // Update host name on client side only
         if (typeof window !== 'undefined') {
-            setPromptLines(prev => {
-                const newLines = [...prev];
-                newLines[3] = `Host '${window.location.host}' status: unreachable`;
-                return newLines;
-            });
+            setHostName(window.location.host);
         }
     }, []);
 
@@ -43,8 +31,8 @@ export default function StatusPage() {
 
         const fontSize = 12;
         const columns = Math.floor(canvas.width / fontSize);
-        const dropsTop: number[] = Array(columns).fill(1);
-        const dropsBottom: number[] = Array(columns).fill(1);
+        const dropsTop: number[] = Array(columns).fill(0).map(() => Math.floor(Math.random() * canvas.height * 3 / fontSize));
+        const dropsBottom: number[] = Array(columns).fill(0).map(() => Math.floor(Math.random() * canvas.height * 3 / fontSize));
 
         const binary = '01';
 
@@ -60,7 +48,7 @@ export default function StatusPage() {
                 const text = binary[Math.floor(Math.random() * binary.length)];
                 ctx.fillText(text, i * fontSize, dropsTop[i] * fontSize);
 
-                const probability = 0.995; // The likelihood of displaying a character (1 - probability)
+                const probability = 0.995;
 
                 if (dropsTop[i] * fontSize > canvas.height && Math.random() > probability) {
                     dropsTop[i] = 0;
@@ -69,13 +57,13 @@ export default function StatusPage() {
                 dropsTop[i]++;
             }
 
-            const buffer: number = 10; // Small buffer to prevent flickering at the bottom
+            const buffer: number = 10;
 
             // Draw from bottom to top
             for (let i = 0; i < dropsBottom.length; i++) {
                 const text = binary[Math.floor(Math.random() * binary.length)];
                 ctx.fillText(text, i * fontSize, canvas.height - dropsBottom[i] * fontSize + buffer);
-                const probability = 0.995; // The likelihood of displaying a character
+                const probability = 0.995;
 
                 if (dropsBottom[i] * fontSize > canvas.height && Math.random() > probability) {
                     dropsBottom[i] = 0;
@@ -105,31 +93,12 @@ export default function StatusPage() {
         };
     }, [mounted]);
 
+    // Rotate active node for visual feedback
     useEffect(() => {
-        const promptInterval = setInterval(() => {
-
-            setCurrentLine((prevLine) => {
-                if (prevLine >= promptLines.length - 1) {
-                    return prevLine;
-                }
-                const nextLine = (prevLine + 1)
-                for (let i = 0; i < promptLines[nextLine].length; i++) {
-                    setTimeout(() => {
-                        setCurrentPrompt(promptLines[nextLine].substring(0, i + 1));
-                        if (cursorRef.current) {
-                            if (i === promptLines[nextLine].length - 1) {
-                                cursorRef.current.classList.add(styles.visible);
-                            } else {
-                                cursorRef.current.classList.remove(styles.visible);
-                            }
-                        }
-                    }, i * 20);
-                }
-                return nextLine;
-            });
-        }, 1500);
-
-        return () => clearInterval(promptInterval);
+        const timer = setInterval(() => {
+            setActiveNode(prev => (prev + 1) % 3);
+        }, 2000);
+        return () => clearInterval(timer);
     }, []);
 
     return (
@@ -137,45 +106,58 @@ export default function StatusPage() {
             <canvas ref={canvasRef} className={styles.matrixCanvas} />
 
             <div className={styles.errorContent}>
-                <div className={styles.errorBox}>
-                    <div className={styles.errorIcon}>
-                        <span className={styles.exclamation}>!</span>
-                    </div>
+                <h1 className={styles.statusTitle}>NETWORK STATUS</h1>
 
-                    <h1 className={styles.errorTitle}>SYSTEM STATUS</h1>
-
-                    <div className={styles.errorCode}>CODE: 0x{errorCode}</div>
-
-                    <p className={styles.errorMessage}>
-                        Error 404: The requested resource was not found on this server.
-                    </p>
-
-
-                    <div className={styles.buttonGroup}>
-                        <button onClick={() => window.location.reload()} className={styles.retryButton}>
-                            <span className={styles.buttonPrefix}>{'>'}</span> RETRY
-                        </button>
-                        <button onClick={() => window.location.href = '/links'} className={styles.homeButton}>
-                            <span className={styles.buttonPrefix}>{'>'}</span> LINKS
-                        </button>
-                    </div>
-
-                    <div className={styles.terminal}>
-                        <div className={styles.terminalLine}>
-                            <span>
-                                {promptLines.slice(1, currentLine).map((line, index) => (
-                                    <span key={index}>
-                                        <span className={styles.prompt}>$</span>{line}
-                                        <span className={styles.terminalBreak}></span>
-                                    </span>
-                                ))}
-
-                                <span className={styles.prompt}>$</span>
-                                {currentPrompt}
-                                <span ref={cursorRef}>█</span>
-                            </span>
+                <div className={styles.networkDiagram}>
+                    {/* Internet Node */}
+                    <div className={`${styles.networkNode} ${activeNode === 0 ? styles.active : ''}`}>
+                        <div className={styles.nodeIcon}>
+                            🌐
                         </div>
+                        <div className={styles.nodeLabel}>Internet</div>
+                        <div className={styles.nodeStatus}>Connected</div>
                     </div>
+
+                    {/* Connection Line */}
+                    <div className={`${styles.connectionLine} ${styles.horizontal}`} />
+
+                    {/* Server Node */}
+                    <div className={`${styles.networkNode} ${activeNode === 1 ? styles.active : ''}`}>
+                        <div className={styles.nodeIcon}>
+                            ⚙️
+                        </div>
+                        <div className={styles.nodeLabel}>Server</div>
+                        <div className={styles.nodeStatus}>Unreachable</div>
+                    </div>
+
+                    {/* Connection Line */}
+                    <div className={`${styles.connectionLine} ${styles.horizontal}`} />
+
+                    {/* Client Node */}
+                    <div className={`${styles.networkNode} ${activeNode === 2 ? styles.active : ''}`}>
+                        <div className={styles.nodeIcon}>
+                            💻
+                        </div>
+                        <div className={styles.nodeLabel}>Client</div>
+                        <div className={styles.nodeStatus}>Connected</div>
+                    </div>
+                </div>
+
+                <div className={styles.statusMessage}>
+                    Error 503: Service Unavailable
+                    <br />
+                    The host '{hostName}' is currently unreachable. The server may be offline or experiencing network issues.
+                </div>
+
+                <div className={styles.statusCode}>CODE: 0x{errorCode}</div>
+
+                <div className={styles.actionButtons}>
+                    <button onClick={() => window.location.reload()} className={styles.actionButton}>
+                        🔄 RETRY
+                    </button>
+                    <button onClick={() => window.location.href = '/links'} className={styles.actionButton}>
+                        🔗 LINKS
+                    </button>
                 </div>
             </div>
         </div>
