@@ -1,0 +1,310 @@
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes glitch {
+  0% {
+    text-shadow: 1px 0 #0f0, -1px 0 #f00;
+  }
+  25% {
+    text-shadow: -1px 0 #0f0, 1px 0 #f00;
+  }
+  50% {
+    text-shadow: 1px 1px #0f0, -1px -1px #f00;
+  }
+  75% {
+    text-shadow: -1px 1px #0f0, 1px -1px #f00;
+  }
+  100% {
+    text-shadow: 1px 0 #0f0, -1px 0 #f00;
+  }
+}
+
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(226, 0, 0, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(226, 0, 0, 0.8);
+  }
+}
+
+@keyframes scanline {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+.errorContainer {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  background: #000;
+}
+
+.matrixCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.errorContent {
+  position: relative;
+  z-index: 10;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.8s ease-out;
+}
+
+.errorBox {
+  background: rgba(0, 0, 0, 0.85);
+  border: 2px solid #0f0;
+  border-radius: 8px;
+  padding: 3rem 2.5rem;
+  max-width: 600px;
+  width: 100%;
+  box-shadow: 
+    0 0 30px rgba(0, 255, 0, 0.3),
+    inset 0 0 20px rgba(0, 255, 0, 0.05);
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #0f0;
+    animation: scanline 4s linear infinite;
+    opacity: 0.3;
+  }
+}
+
+.errorIcon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 2rem;
+  border: 3px solid rgb(226, 0, 0);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.exclamation {
+  font-size: 3rem;
+  font-weight: bold;
+  color: rgb(226, 0, 0);
+  font-family: monospace;
+}
+
+.errorTitle {
+  font-size: clamp(1.75rem, 5vw, 2.5rem);
+  color: #0f0;
+  text-align: center;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.2rem;
+  animation: glitch 3s step-start infinite;
+}
+
+.errorCode {
+  font-family: 'Courier New', monospace;
+  color: #0f0;
+  text-align: center;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.8;
+  letter-spacing: 0.1rem;
+}
+
+.errorMessage {
+  color: #0f0;
+  font-family: 'Courier New', monospace;
+  font-size: clamp(0.9rem, 2.5vw, 1rem);
+  line-height: 1.6;
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  border-radius: 4px;
+  background: rgba(0, 255, 0, 0.05);
+}
+
+.errorDigest {
+  font-family: 'Courier New', monospace;
+  color: #0f0;
+  font-size: 0.85rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  opacity: 0.7;
+  
+  span {
+    opacity: 0.9;
+    font-weight: bold;
+  }
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.retryButton,
+.homeButton {
+  flex: 1;
+  min-width: 140px;
+  padding: 1rem 1.5rem;
+  background: transparent;
+  border: 2px solid #0f0;
+  color: #0f0;
+  font-family: 'Courier New', monospace;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 0.15rem;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 255, 0, 0.1);
+    transition: left 0.3s ease;
+  }
+  
+  &:hover::before {
+    left: 0;
+  }
+  
+  &:hover {
+    background: rgba(0, 255, 0, 0.1);
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+    transform: translateY(-2px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.buttonPrefix {
+  margin-right: 0.5rem;
+  opacity: 0.7;
+}
+
+.terminal {
+  margin-top: 2rem;
+  padding: 1rem;
+  background: rgba(0, 255, 0, 0.03);
+  border: 1px solid rgba(0, 255, 0, 0.2);
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+}
+
+.terminalLine {
+  color: #0f0;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.prompt {
+  color: #0f0;
+  margin-right: 0.5rem;
+  font-weight: bold;
+}
+
+.visible {
+  animation: blink 1s step-end infinite;
+}
+
+.terminalBreak {
+  display: block;
+  margin: 1.5rem 0;
+}
+
+@media (max-width: 768px) {
+  .errorContent {
+    padding: 1rem;
+  }
+  
+  .errorBox {
+    padding: 2rem 1.5rem;
+  }
+  
+  .buttonGroup {
+    flex-direction: column;
+  }
+  
+  .retryButton,
+  .homeButton {
+    width: 100%;
+  }
+  
+  .errorIcon {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .exclamation {
+    font-size: 2rem;
+  }
+  
+  .errorTitle {
+    letter-spacing: 0.1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .errorContainer *,
+  .errorContainer *::before,
+  .errorContainer *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

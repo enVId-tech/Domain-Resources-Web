@@ -1,13 +1,13 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import styles from '@/styles/error.module.scss';
+import styles from './styles/error.module.scss';
 
-export default function Error() {
+export default function StatusPage() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [promptLines, setPromptLines] = useState<string[]>([
         '',
-        'Analyzing error...',
+        'Analyzing status...',
         'Checking system logs...',
         `Host status: unreachable`,
         'Please try again later.'

@@ -1,0 +1,12 @@
+* {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  background: #000;
+}
