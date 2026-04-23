@@ -3,6 +3,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -13,33 +14,44 @@
   0% {
     text-shadow: 1px 0 #0f0, -1px 0 #f00;
   }
+
   25% {
     text-shadow: -1px 0 #0f0, 1px 0 #f00;
   }
+
   50% {
     text-shadow: 1px 1px #0f0, -1px -1px #f00;
   }
+
   75% {
     text-shadow: -1px 1px #0f0, 1px -1px #f00;
   }
+
   100% {
     text-shadow: 1px 0 #0f0, -1px 0 #f00;
   }
 }
 
 @keyframes blink {
-  0%, 50% {
+
+  0%,
+  50% {
     opacity: 1;
   }
-  51%, 100% {
+
+  51%,
+  100% {
     opacity: 0;
   }
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
   }
+
   50% {
     box-shadow: 0 0 40px rgba(0, 255, 0, 0.8);
   }
@@ -49,24 +61,75 @@
   0% {
     transform: translateY(-100%);
   }
+
   100% {
     transform: translateY(100%);
   }
 }
 
 @keyframes flowPulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.6;
   }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes dotSlide {
+  0% {
+    transform: translateX(-50vw);
+    opacity: 0;
+  }
+
+  5% {
+    opacity: 1;
+  }
+
+  95% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(50vw);
+    opacity: 0;
+  }
+}
+
+@keyframes grayFlash {
+
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes redFlash {
+
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+
   50% {
     opacity: 1;
   }
 }
 
 @keyframes nodeGlow {
-  0%, 100% {
+
+  0%,
+  100% {
     filter: drop-shadow(0 0 10px rgba(0, 255, 0, 0.5));
   }
+
   50% {
     filter: drop-shadow(0 0 25px rgba(0, 255, 0, 0.9));
   }
@@ -76,6 +139,7 @@
   0% {
     offset-distance: 0%;
   }
+
   100% {
     offset-distance: 100%;
   }
@@ -93,9 +157,22 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #000;
+  background: linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #000000 100%);
   padding: 2rem;
   box-sizing: border-box;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 20% 50%, rgba(0, 255, 0, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(0, 255, 0, 0.02) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
 }
 
 .matrixCanvas {
@@ -104,7 +181,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 1;
+  z-index: 2;
 }
 
 .errorContent {
@@ -199,7 +276,7 @@
   text-align: center;
   margin-bottom: 2rem;
   opacity: 0.7;
-  
+
   span {
     opacity: 0.9;
     font-weight: bold;
@@ -229,7 +306,7 @@
   letter-spacing: 0.15rem;
   position: relative;
   overflow: hidden;
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -240,17 +317,17 @@
     background: rgba(0, 255, 0, 0.1);
     transition: left 0.3s ease;
   }
-  
+
   &:hover::before {
     left: 0;
   }
-  
+
   &:hover {
     background: rgba(0, 255, 0, 0.1);
     box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
     transform: translateY(-2px);
   }
-  
+
   &:active {
     transform: translateY(0);
   }
@@ -274,7 +351,7 @@
   color: #0f0;
   font-size: 0.85rem;
   margin-bottom: 0.5rem;
-  
+
   &:last-child {
     margin-bottom: 0;
   }
@@ -301,8 +378,8 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  gap: 2rem;
-  flex-wrap: wrap;
+  gap: 1rem;
+  flex-wrap: nowrap;
   margin-bottom: 2rem;
   overflow: visible;
   padding: 0;
@@ -317,11 +394,115 @@
   position: relative;
   flex: 1;
   min-width: 140px;
-  animation: nodeGlow 3s ease-in-out infinite;
   z-index: 2;
+  transition: all 0.3s ease;
 
-  &.active {
-    animation: nodeGlow 1.5s ease-in-out infinite;
+  // Default/Success state
+  &.success {
+    .nodeIcon {
+      animation: nodeGlow 3s ease-in-out infinite;
+      border-color: #0f0;
+      box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+    }
+
+    .icon {
+      color: #0f0;
+    }
+
+    .nodeLabel,
+    .nodeStatus {
+      color: #0f0;
+    }
+  }
+
+  // Pending state - light gray, no animation
+  &.pending {
+    .nodeIcon {
+      border-color: #888888;
+      box-shadow: 0 0 15px rgba(136, 136, 136, 0.3);
+    }
+
+    .icon {
+      color: #888888;
+    }
+
+    .nodeLabel,
+    .nodeStatus {
+      color: #888888;
+    }
+  }
+
+  // Connecting state - light gray with rapid flashing
+  &.connecting {
+    .nodeIcon {
+      border-color: #888888;
+      box-shadow: 0 0 15px rgba(136, 136, 136, 0.3);
+      animation: grayFlash 0.3s ease-in-out infinite;
+    }
+
+    .icon {
+      color: #888888;
+      animation: grayFlash 0.3s ease-in-out infinite;
+    }
+
+    .nodeLabel,
+    .nodeStatus {
+      color: #888888;
+      animation: grayFlash 0.3s ease-in-out infinite;
+    }
+  }
+
+  // Failed state - red, no animation
+  &.failed {
+    .nodeIcon {
+      &::before {
+        background: linear-gradient(
+          45deg,
+          transparent,
+          rgba(255, 68, 68, 0.15),
+          transparent
+        ) !important;
+      }
+
+      border-color: #ff4444 !important;
+      box-shadow: none !important;
+      background-color: rgba(255, 68, 68, 0.05);
+    }
+
+    .icon {
+      color: #ff4444 !important;
+    }
+
+    .nodeLabel,
+    .nodeStatus {
+      color: #ff4444 !important;
+    }
+  }
+
+  // Cascade failed state - failed due to upstream failure
+  &.cascadeFailed {
+    .nodeIcon {
+      &::before {
+        display: none !important;
+        height: 0 !important;
+      }
+
+      border-color: #444444 !important;
+      box-shadow: none !important;
+      animation: none !important;
+      background-color: rgba(0,0,0,0);
+    }
+
+    .icon {
+      color: #444444 !important;
+      animation: none !important;
+    }
+
+    .nodeLabel,
+    .nodeStatus {
+      color: #444444 !important;
+      animation: none !important;
+    }
   }
 }
 
@@ -345,12 +526,10 @@
     left: -50%;
     width: 200%;
     height: 200%;
-    background: linear-gradient(
-      45deg,
-      transparent,
-      rgba(0, 255, 0, 0.1),
-      transparent
-    );
+    background: linear-gradient(45deg,
+        transparent,
+        rgba(0, 255, 0, 0.1),
+        transparent);
     animation: scanline 3s linear infinite;
   }
 }
@@ -389,17 +568,84 @@
   top: auto;
   transform: none;
   z-index: 1;
-  flex: 0 0 100px;
+  flex: 1;
+  min-width: 0;
   pointer-events: none;
   display: flex;
   align-items: center;
+  overflow: visible;
+  transition: all 0.3s ease;
 
   &.horizontal {
-    width: 100px;
     height: 10px;
     left: 0;
     right: auto;
     margin: 0;
+  }
+
+  // Pending state - static light gray
+  &.pending {
+    .dot {
+      background: #888888;
+      box-shadow: 0 0 6px rgba(136, 136, 136, 0.4);
+      animation: none;
+    }
+  }
+
+  // Connecting state - light gray animated
+  &.connecting {
+    .dot {
+      background: #888888;
+      box-shadow: 0 0 6px rgba(136, 136, 136, 0.6);
+      animation: dotSlide 2s linear infinite;
+    }
+  }
+
+  // Success state - green animated
+  &.success {
+    .dot {
+      background: #0f0;
+      box-shadow: 0 0 6px rgba(0, 255, 0, 0.8);
+      animation: dotSlide 2s linear infinite;
+    }
+  }
+
+  // Failed state - dark gray static (not flashing like the nodes, just solid dark)
+  &.failed {
+    .dot {
+      background: #444444;
+      box-shadow: 0 0 6px rgba(68, 68, 68, 0.4);
+      animation: none;
+    }
+  }
+}
+
+.dotsContainer {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  position: absolute;
+  transition: all 0.3s ease;
+
+  &.dot1 {
+    animation-delay: 0s;
+  }
+
+  &.dot2 {
+    animation-delay: 0.4s;
+  }
+
+  &.dot3 {
+    animation-delay: 0.8s;
   }
 }
 
@@ -510,29 +756,29 @@
     padding: 1.5rem;
     border-radius: 6px;
   }
-  
+
   .errorBox {
     padding: 0;
   }
-  
+
   .buttonGroup {
     flex-direction: column;
   }
-  
+
   .retryButton,
   .homeButton {
     width: 100%;
   }
-  
+
   .errorIcon {
     width: 60px;
     height: 60px;
   }
-  
+
   .exclamation {
     font-size: 2rem;
   }
-  
+
   .errorTitle {
     letter-spacing: 0.1rem;
     font-size: 1.5rem;
@@ -700,6 +946,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .errorContainer *,
   .errorContainer *::before,
   .errorContainer *::after {

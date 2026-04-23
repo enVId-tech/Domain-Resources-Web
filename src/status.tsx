@@ -9,7 +9,32 @@ export default function StatusPage() {
     const [mounted, setMounted] = useState(false);
     const [hostName, setHostName] = useState<string>('loading...');
     const [errorCode, setErrorCode] = useState<string>('00000');
-    const [activeNode, setActiveNode] = useState<number>(1);
+    const [processingLink, setProcessingLink] = useState<number>(0); // 0: Internet->Server, 1: Server->Client
+    const [failedNode, setFailedNode] = useState<number | null>(1); // null = all pass, 0 = Internet failed, 1 = Server failed, 2 = Client failed
+
+    // Determine node states based on progression and failures
+    const getNodeState = (nodeIndex: number) => {
+        // If there's a failed node
+        if (failedNode !== null) {
+            if (nodeIndex < failedNode) return 'success'; // Nodes before failure succeeded
+            return 'failed'; // The failed node and all nodes after it
+        }
+        // All succeed
+        if (nodeIndex === 0) return 'success'; // Internet always succeeds
+        if (nodeIndex === 1 && processingLink >= 1) return 'success';
+        if (nodeIndex === 2 && processingLink >= 1) return 'success';
+        return 'pending';
+    };
+
+    // Determine if a node failed due to cascade (failed but not the primary failure)
+    const isCascadeFailed = (nodeIndex: number) => {
+        return failedNode !== null && nodeIndex > failedNode;
+    };
+
+    const getConnectionState = (connectionIndex: number) => {
+        // Connection inherits the state of its SOURCE node
+        return getNodeState(connectionIndex);
+    };
 
     useEffect(() => {
         setMounted(true);
@@ -38,10 +63,10 @@ export default function StatusPage() {
         const binary = '01';
 
         const draw = () => {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            ctx.fillStyle = '#0F0';
+            ctx.fillStyle = 'rgba(0, 255, 0, 0.6)';
             ctx.font = `${fontSize}px monospace`;
 
             // Draw from top to bottom
@@ -49,7 +74,7 @@ export default function StatusPage() {
                 const text = binary[Math.floor(Math.random() * binary.length)];
                 ctx.fillText(text, i * fontSize, dropsTop[i] * fontSize);
 
-                const probability = 0.995;
+                const probability = 0.997;
 
                 if (dropsTop[i] * fontSize > canvas.height && Math.random() > probability) {
                     dropsTop[i] = 0;
@@ -64,7 +89,7 @@ export default function StatusPage() {
             for (let i = 0; i < dropsBottom.length; i++) {
                 const text = binary[Math.floor(Math.random() * binary.length)];
                 ctx.fillText(text, i * fontSize, canvas.height - dropsBottom[i] * fontSize + buffer);
-                const probability = 0.995;
+                const probability = 0.997;
 
                 if (dropsBottom[i] * fontSize > canvas.height && Math.random() > probability) {
                     dropsBottom[i] = 0;
@@ -94,11 +119,11 @@ export default function StatusPage() {
         };
     }, [mounted]);
 
-    // Rotate active node for visual feedback
+    // Animate dots between nodes
     useEffect(() => {
         const timer = setInterval(() => {
-            setActiveNode(prev => (prev + 1) % 3);
-        }, 2000);
+            setProcessingLink(prev => (prev + 1) % 2);
+        }, Math.random() * 50 + 100); // Random between 100-150ms
         return () => clearInterval(timer);
     }, []);
 
@@ -111,7 +136,7 @@ export default function StatusPage() {
 
                 <div className={styles.networkDiagram}>
                     {/* Internet Node */}
-                    <div className={`${styles.networkNode} ${activeNode === 0 ? styles.active : ''}`}>
+                    <div className={`${styles.networkNode} ${styles[getNodeState(0)]} ${isCascadeFailed(0) ? styles.cascadeFailed : ''}`}>
                         <div className={styles.nodeIcon}>
                             <FiGlobe className={styles.icon} />
                         </div>
@@ -119,33 +144,37 @@ export default function StatusPage() {
                         <div className={styles.nodeStatus}>Connected</div>
                     </div>
 
-                    {/* Connection Line */}
-                    <div className={`${styles.connectionLine} ${styles.horizontal}`}>
-                        <svg viewBox="0 0 100 10" preserveAspectRatio="none" className={styles.arrowLine}>
-                            <line x1="0" y1="5" x2="85" y2="5" stroke="#0f0" strokeWidth="2" />
-                            <polygon points="100,5 90,0 90,10" fill="#0f0" />
-                        </svg>
+                    {/* Connection Dots 1 */}
+                    <div className={`${styles.connectionLine} ${styles.horizontal} ${styles[getConnectionState(0)]}`}>
+                        <div className={styles.dotsContainer}>
+                            <div className={`${styles.dot} ${styles.dot1}`}></div>
+                            <div className={`${styles.dot} ${styles.dot2}`}></div>
+                            <div className={`${styles.dot} ${styles.dot3}`}></div>
+                        </div>
                     </div>
 
                     {/* Server Node */}
-                    <div className={`${styles.networkNode} ${activeNode === 1 ? styles.active : ''}`}>
+                    <div className={`${styles.networkNode} ${styles[getNodeState(1)]} ${isCascadeFailed(1) ? styles.cascadeFailed : ''}`}>
                         <div className={styles.nodeIcon}>
                             <FiServer className={styles.icon} />
                         </div>
                         <div className={styles.nodeLabel}>Server</div>
-                        <div className={styles.nodeStatus}>Unreachable</div>
+                        <div className={styles.nodeStatus}>
+                            {getNodeState(1) === 'failed' ? 'Failed' : 'Unreachable'}
+                        </div>
                     </div>
 
-                    {/* Connection Line */}
-                    <div className={`${styles.connectionLine} ${styles.horizontal}`}>
-                        <svg viewBox="0 0 100 10" preserveAspectRatio="none" className={styles.arrowLine}>
-                            <line x1="0" y1="5" x2="85" y2="5" stroke="#0f0" strokeWidth="2" />
-                            <polygon points="100,5 90,0 90,10" fill="#0f0" />
-                        </svg>
+                    {/* Connection Dots 2 */}
+                    <div className={`${styles.connectionLine} ${styles.horizontal} ${styles[getConnectionState(1)]}`}>
+                        <div className={styles.dotsContainer}>
+                            <div className={`${styles.dot} ${styles.dot1}`}></div>
+                            <div className={`${styles.dot} ${styles.dot2}`}></div>
+                            <div className={`${styles.dot} ${styles.dot3}`}></div>
+                        </div>
                     </div>
 
                     {/* Client Node */}
-                    <div className={`${styles.networkNode} ${activeNode === 2 ? styles.active : ''}`}>
+                    <div className={`${styles.networkNode} ${styles[getNodeState(2)]} ${isCascadeFailed(2) ? styles.cascadeFailed : ''}`}>
                         <div className={styles.nodeIcon}>
                             <FiMonitor className={styles.icon} />
                         </div>
