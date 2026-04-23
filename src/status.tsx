@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { FiGlobe, FiServer, FiMonitor } from 'react-icons/fi';
 import styles from './styles/status.module.scss';
 
 export default function StatusPage() {
@@ -112,31 +113,41 @@ export default function StatusPage() {
                     {/* Internet Node */}
                     <div className={`${styles.networkNode} ${activeNode === 0 ? styles.active : ''}`}>
                         <div className={styles.nodeIcon}>
-                            🌐
+                            <FiGlobe className={styles.icon} />
                         </div>
                         <div className={styles.nodeLabel}>Internet</div>
                         <div className={styles.nodeStatus}>Connected</div>
                     </div>
 
                     {/* Connection Line */}
-                    <div className={`${styles.connectionLine} ${styles.horizontal}`} />
+                    <div className={`${styles.connectionLine} ${styles.horizontal}`}>
+                        <svg viewBox="0 0 100 10" preserveAspectRatio="none" className={styles.arrowLine}>
+                            <line x1="0" y1="5" x2="85" y2="5" stroke="#0f0" strokeWidth="2" />
+                            <polygon points="100,5 90,0 90,10" fill="#0f0" />
+                        </svg>
+                    </div>
 
                     {/* Server Node */}
                     <div className={`${styles.networkNode} ${activeNode === 1 ? styles.active : ''}`}>
                         <div className={styles.nodeIcon}>
-                            ⚙️
+                            <FiServer className={styles.icon} />
                         </div>
                         <div className={styles.nodeLabel}>Server</div>
                         <div className={styles.nodeStatus}>Unreachable</div>
                     </div>
 
                     {/* Connection Line */}
-                    <div className={`${styles.connectionLine} ${styles.horizontal}`} />
+                    <div className={`${styles.connectionLine} ${styles.horizontal}`}>
+                        <svg viewBox="0 0 100 10" preserveAspectRatio="none" className={styles.arrowLine}>
+                            <line x1="0" y1="5" x2="85" y2="5" stroke="#0f0" strokeWidth="2" />
+                            <polygon points="100,5 90,0 90,10" fill="#0f0" />
+                        </svg>
+                    </div>
 
                     {/* Client Node */}
                     <div className={`${styles.networkNode} ${activeNode === 2 ? styles.active : ''}`}>
                         <div className={styles.nodeIcon}>
-                            💻
+                            <FiMonitor className={styles.icon} />
                         </div>
                         <div className={styles.nodeLabel}>Client</div>
                         <div className={styles.nodeStatus}>Connected</div>
