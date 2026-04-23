@@ -1,8 +1,17 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { FiGlobe, FiServer, FiMonitor, FiRefreshCw, FiLink } from 'react-icons/fi';
+import { FiGlobe, FiServer, FiMonitor, FiRefreshCw, FiLink, FiCloud } from 'react-icons/fi';
 import styles from './styles/status.module.scss';
+import { FaCloudflare } from 'react-icons/fa';
+import { TbBrandCloudflare } from 'react-icons/tb';
+
+interface HealthCheckResponse {
+    status: 'online' | 'degraded';
+    code: number;
+    diagnostic: 'nominal' | 'service_issue' | 'connection_failure';
+    timestamp: string;
+}
 
 export default function StatusPage() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -10,7 +19,50 @@ export default function StatusPage() {
     const [hostName, setHostName] = useState<string>('loading...');
     const [errorCode, setErrorCode] = useState<string>('00000');
     const [processingLink, setProcessingLink] = useState<number>(0); // 0: Internet->Server, 1: Server->Client
-    const [failedNode, setFailedNode] = useState<number | null>(1); // null = all pass, 0 = Internet failed, 1 = Server failed, 2 = Client failed
+    const [failedNode, setFailedNode] = useState<number | null>(null); // null = all pass, 0 = Cloudflare failed, 1 = Server failed, 2 = Client failed
+    const [statusMessage, setStatusMessage] = useState<string>('Checking status...');
+
+    useEffect(() => {
+        const getStatus = async () => {
+            try {
+                const response = await fetch('/api/health-check');
+                const data: HealthCheckResponse = await response.json();
+
+                // Check if offline (status is degraded or error code indicates failure)
+                if (data.status === 'degraded' || data.code !== 200) {
+                    console.log(`Lab Alert: ${data.diagnostic} at ${data.timestamp}`);
+
+                    // Determine which node failed based on diagnostic and code
+                    if (data.code === 503) {
+                        setFailedNode(1); // Server connection failure
+                        setStatusMessage(`Error 503: Service Unavailable\nThe host '${hostName}' is currently unreachable due to a server connection issue.`);
+                    } else if (data.code === 504) {
+                        setFailedNode(0); // Cloudflare/Gateway timeout
+                        setStatusMessage(`Error 504: Gateway Timeout\nThe request took too long to process. Gateway may be experiencing issues.`);
+                    } else if (data.diagnostic === 'connection_failure') {
+                        setFailedNode(1); // Assume server-side connection issue
+                        setStatusMessage(`Error ${data.code}: Connection Failure\nUnable to establish a connection to the server.`);
+                    } else if (data.diagnostic === 'service_issue') {
+                        setFailedNode(1); // Server is degraded
+                        setStatusMessage(`Error ${data.code}: Service Degraded\nThe server is experiencing issues but may still be partially operational.`);
+                    }
+                } else {
+                    setFailedNode(null); // All systems nominal
+                    setStatusMessage('All systems operational');
+                }
+            } catch (error: any) {
+                console.error('Health check failed:', error);
+                setFailedNode(1); // Default to server failure on fetch error
+                setStatusMessage('Error 503: Service Unavailable\nUnable to perform health check. The server may be offline.');
+            }
+        };
+
+        getStatus();
+
+        // Poll every 30 seconds for continuous status updates
+        const interval = setInterval(getStatus, 30000);
+        return () => clearInterval(interval);
+    }, [hostName]);
 
     // Determine node states based on progression and failures
     const getNodeState = (nodeIndex: number) => {
@@ -139,22 +191,20 @@ export default function StatusPage() {
                 <h1 className={styles.statusTitle}>NETWORK STATUS</h1>
 
                 <div className={styles.networkDiagram}>
-                    {/* Internet Node */}
+                    {/* Cloudflare Node */}
                     <div className={`${styles.networkNode} ${styles[getNodeState(0)]} ${isCascadeFailed(0) ? styles.cascadeFailed : ''}`}>
                         <div className={styles.nodeIcon}>
-                            <FiGlobe className={styles.icon} />
+                            <TbBrandCloudflare className={styles.icon} />
                         </div>
-                        <div className={styles.nodeLabel}>Internet</div>
-                        <div className={styles.nodeStatus}>Connected</div>
+                        <div className={styles.nodeLabel}>Cloudflare</div>
+                        <div className={styles.nodeStatus}>
+                            {getNodeState(0) === 'failed' ? 'Failed' : 'Connected'}
+                        </div>
                     </div>
 
                     {/* Connection Dots 1 */}
                     <div className={`${styles.connectionLine} ${styles.horizontal} ${styles[getConnectionState(0)]}`}>
                         <div className={styles.dotsContainer}>
-                            {
-                                // 16 dots for the connection line, animated via CSS
-                                
-                            }
                             <div className={`${styles.dot} ${styles.dot1}`}></div>
                             <div className={`${styles.dot} ${styles.dot2}`}></div>
                             <div className={`${styles.dot} ${styles.dot3}`}></div>
@@ -181,7 +231,7 @@ export default function StatusPage() {
                         </div>
                         <div className={styles.nodeLabel}>Server</div>
                         <div className={styles.nodeStatus}>
-                            {getNodeState(1) === 'failed' ? 'Failed' : 'Unreachable'}
+                            {getNodeState(1) === 'failed' ? 'Failed' : 'Connected'}
                         </div>
                     </div>
 
@@ -213,14 +263,17 @@ export default function StatusPage() {
                             <FiMonitor className={styles.icon} />
                         </div>
                         <div className={styles.nodeLabel}>Client</div>
-                        <div className={styles.nodeStatus}>Connected</div>
+                        <div className={styles.nodeStatus}>{
+                            getNodeState(1) === 'failed' ? 'Failed' : getNodeState(2) === 'failed' ? 'Failed' : 'Connected'
+                        }
+                        </div>
                     </div>
                 </div>
 
                 <div className={styles.statusMessage}>
-                    Error 503: Service Unavailable
-                    <br />
-                    The host '{hostName}' is currently unreachable. The server may be offline or experiencing network issues.
+                    {statusMessage.split('\n').map((line, i) => (
+                        <div key={i}>{line}</div>
+                    ))}
                 </div>
 
                 <div className={styles.statusCode}>CODE: 0x{errorCode}</div>
@@ -230,7 +283,7 @@ export default function StatusPage() {
                         <FiRefreshCw className={styles.buttonIcon} />
                         RETRY
                     </button>
-                    <button onClick={() => window.location.href = '/links'} className={styles.actionButton}>
+                    <button onClick={() => window.location.href = '/links'} className={`${styles.actionButton} ${getNodeState(1) === 'failed' ? styles.disabledButton : getNodeState(0) === 'failed' ? styles.disabledButton : ''}`} disabled={getNodeState(1) === 'failed' || getNodeState(0) === 'failed'}>
                         <FiLink className={styles.buttonIcon} />
                         LINKS
                     </button>

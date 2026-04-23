@@ -472,7 +472,7 @@
       }
 
       border-color: #ff4444 !important;
-      box-shadow: none !important;
+      box-shadow: 0 0 25px rgba(255, 68, 68, 0.5) !important;
       background-color: rgba(255, 68, 68, 0.05);
     }
 
@@ -808,6 +808,28 @@
 
   &:active {
     transform: translateY(0);
+  }
+
+  &.disabledButton {
+    border-color: #444444;
+    color: #444444;
+    cursor: not-allowed;
+    background-color: transparent !important;
+    animation: none;
+
+    &::before {
+      display: none !important;
+      width: 0 !important;
+    }
+
+    &:hover {
+      &::before {
+        display: none !important;
+        width: 0 !important;
+      }
+      box-shadow: none !important;
+      transform: none !important;
+    }
   }
 }
 
