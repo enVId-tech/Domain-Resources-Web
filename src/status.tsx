@@ -32,7 +32,11 @@ export default function StatusPage() {
     };
 
     const getConnectionState = (connectionIndex: number) => {
-        // Connection inherits the state of its SOURCE node
+        // If the source node is failed or cascade-failed, dots are inactive
+        if (failedNode !== null && connectionIndex >= failedNode) {
+            return 'inactive';
+        }
+        // Otherwise inherit the state of the SOURCE node
         return getNodeState(connectionIndex);
     };
 
@@ -150,6 +154,19 @@ export default function StatusPage() {
                             <div className={`${styles.dot} ${styles.dot1}`}></div>
                             <div className={`${styles.dot} ${styles.dot2}`}></div>
                             <div className={`${styles.dot} ${styles.dot3}`}></div>
+                            <div className={`${styles.dot} ${styles.dot4}`}></div>
+                            <div className={`${styles.dot} ${styles.dot5}`}></div>
+                            <div className={`${styles.dot} ${styles.dot6}`}></div>
+                            <div className={`${styles.dot} ${styles.dot7}`}></div>
+                            <div className={`${styles.dot} ${styles.dot8}`}></div>
+                            <div className={`${styles.dot} ${styles.dot9}`}></div>
+                            <div className={`${styles.dot} ${styles.dot10}`}></div>
+                            <div className={`${styles.dot} ${styles.dot11}`}></div>
+                            <div className={`${styles.dot} ${styles.dot12}`}></div>
+                            <div className={`${styles.dot} ${styles.dot13}`}></div>
+                            <div className={`${styles.dot} ${styles.dot14}`}></div>
+                            <div className={`${styles.dot} ${styles.dot15}`}></div>
+                            <div className={`${styles.dot} ${styles.dot16}`}></div>
                         </div>
                     </div>
 
@@ -170,6 +187,19 @@ export default function StatusPage() {
                             <div className={`${styles.dot} ${styles.dot1}`}></div>
                             <div className={`${styles.dot} ${styles.dot2}`}></div>
                             <div className={`${styles.dot} ${styles.dot3}`}></div>
+                            <div className={`${styles.dot} ${styles.dot4}`}></div>
+                            <div className={`${styles.dot} ${styles.dot5}`}></div>
+                            <div className={`${styles.dot} ${styles.dot6}`}></div>
+                            <div className={`${styles.dot} ${styles.dot7}`}></div>
+                            <div className={`${styles.dot} ${styles.dot8}`}></div>
+                            <div className={`${styles.dot} ${styles.dot9}`}></div>
+                            <div className={`${styles.dot} ${styles.dot10}`}></div>
+                            <div className={`${styles.dot} ${styles.dot11}`}></div>
+                            <div className={`${styles.dot} ${styles.dot12}`}></div>
+                            <div className={`${styles.dot} ${styles.dot13}`}></div>
+                            <div className={`${styles.dot} ${styles.dot14}`}></div>
+                            <div className={`${styles.dot} ${styles.dot15}`}></div>
+                            <div className={`${styles.dot} ${styles.dot16}`}></div>
                         </div>
                     </div>
 

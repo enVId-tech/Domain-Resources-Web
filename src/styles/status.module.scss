@@ -81,7 +81,7 @@
 
 @keyframes dotSlide {
   0% {
-    transform: translateX(-50vw);
+    left: -10px;
     opacity: 0;
   }
 
@@ -94,7 +94,7 @@
   }
 
   100% {
-    transform: translateX(50vw);
+    left: calc(100% + 10px);
     opacity: 0;
   }
 }
@@ -132,6 +132,16 @@
 
   50% {
     filter: drop-shadow(0 0 25px rgba(0, 255, 0, 0.9));
+  }
+}
+
+@keyframes flowDots {
+  0% {
+    background-position: 0 center;
+  }
+
+  100% {
+    background-position: 20px center;
   }
 }
 
@@ -378,7 +388,7 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  gap: 1rem;
+  gap: 0;
   flex-wrap: nowrap;
   margin-bottom: 2rem;
   overflow: visible;
@@ -392,7 +402,6 @@
   align-items: center;
   gap: 1rem;
   position: relative;
-  flex: 1;
   min-width: 140px;
   z-index: 2;
   transition: all 0.3s ease;
@@ -456,12 +465,10 @@
   &.failed {
     .nodeIcon {
       &::before {
-        background: linear-gradient(
-          45deg,
-          transparent,
-          rgba(255, 68, 68, 0.15),
-          transparent
-        ) !important;
+        background: linear-gradient(45deg,
+            transparent,
+            rgba(255, 68, 68, 0.15),
+            transparent) !important;
       }
 
       border-color: #ff4444 !important;
@@ -490,7 +497,7 @@
       border-color: #444444 !important;
       box-shadow: none !important;
       animation: none !important;
-      background-color: rgba(0,0,0,0);
+      background-color: rgba(0, 0, 0, 0);
     }
 
     .icon {
@@ -573,60 +580,71 @@
   pointer-events: none;
   display: flex;
   align-items: center;
+  justify-content: center;
   overflow: visible;
   transition: all 0.3s ease;
 
-  &.horizontal {
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    width: 100%;
     height: 10px;
+    transform: translateY(-50%);
+    background-size: 20px 100%;
+    background-repeat: repeat-x;
+    background-position: 0 center;
+  }
+
+  &.horizontal {
+    height: 100px;
     left: 0;
     right: auto;
     margin: 0;
+    margin-bottom: 50px;
   }
 
   // Pending state - static light gray
   &.pending {
-    .dot {
-      background: #888888;
-      box-shadow: 0 0 6px rgba(136, 136, 136, 0.4);
+    &::before {
+      background-image: radial-gradient(circle, #888888 2px, transparent 2px);
       animation: none;
+      filter: blur(1.2px);
     }
   }
 
   // Connecting state - light gray animated
   &.connecting {
-    .dot {
-      background: #888888;
-      box-shadow: 0 0 6px rgba(136, 136, 136, 0.6);
-      animation: dotSlide 2s linear infinite;
+    &::before {
+      background-image: radial-gradient(circle, #888888 2px, transparent 2px);
+      animation: flowDots 1.5s linear infinite;
+      filter: blur(1.2px);
     }
   }
 
   // Success state - green animated
   &.success {
-    .dot {
-      background: #0f0;
-      box-shadow: 0 0 6px rgba(0, 255, 0, 0.8);
-      animation: dotSlide 2s linear infinite;
+    &::before {
+      background-image: radial-gradient(circle, #0f0 2px, transparent 2px);
+      animation: flowDots 1.5s linear infinite;
+      filter: drop-shadow(0 0 4px rgba(0, 255, 0, 0.8)) blur(1.2px);
     }
   }
 
-  // Failed state - dark gray static (not flashing like the nodes, just solid dark)
-  &.failed {
-    .dot {
-      background: #444444;
-      box-shadow: 0 0 6px rgba(68, 68, 68, 0.4);
+  // Inactive state - dark gray static (for failed or cascade-failed connections)
+  &.inactive {
+    &::before {
+      background-image: radial-gradient(circle, #444444 2px, transparent 2px);
+      filter: blur(1.2px);
       animation: none;
     }
   }
 }
 
 .dotsContainer {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: none;
 }
 
 .dot {
@@ -641,11 +659,63 @@
   }
 
   &.dot2 {
-    animation-delay: 0.4s;
+    animation-delay: 0.125s;
   }
 
   &.dot3 {
-    animation-delay: 0.8s;
+    animation-delay: 0.25s;
+  }
+
+  &.dot4 {
+    animation-delay: 0.375s;
+  }
+
+  &.dot5 {
+    animation-delay: 0.5s;
+  }
+
+  &.dot6 {
+    animation-delay: 0.625s;
+  }
+
+  &.dot7 {
+    animation-delay: 0.75s;
+  }
+
+  &.dot8 {
+    animation-delay: 0.875s;
+  }
+
+  &.dot9 {
+    animation-delay: 1s;
+  }
+
+  &.dot10 {
+    animation-delay: 1.125s;
+  }
+
+  &.dot11 {
+    animation-delay: 1.25s;
+  }
+
+  &.dot12 {
+    animation-delay: 1.375s;
+  }
+
+  &.dot13 {
+    animation-delay: 1.5s;
+  }
+
+  &.dot14 {
+    animation-delay: 1.625s;
+  }
+
+  &.dot15 {
+    animation-delay: 1.75s;
+  }
+
+  &.dot16 {
+    animation-delay: 1.875s;
   }
 }
 
