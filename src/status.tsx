@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { FiGlobe, FiServer, FiMonitor } from 'react-icons/fi';
+import { FiGlobe, FiServer, FiMonitor, FiRefreshCw, FiLink } from 'react-icons/fi';
 import styles from './styles/status.module.scss';
 
 export default function StatusPage() {
@@ -38,7 +38,7 @@ export default function StatusPage() {
         const binary = '01';
 
         const draw = () => {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             ctx.fillStyle = '#0F0';
@@ -164,10 +164,12 @@ export default function StatusPage() {
 
                 <div className={styles.actionButtons}>
                     <button onClick={() => window.location.reload()} className={styles.actionButton}>
-                        🔄 RETRY
+                        <FiRefreshCw className={styles.buttonIcon} />
+                        RETRY
                     </button>
                     <button onClick={() => window.location.href = '/links'} className={styles.actionButton}>
-                        🔗 LINKS
+                        <FiLink className={styles.buttonIcon} />
+                        LINKS
                     </button>
                 </div>
             </div>
