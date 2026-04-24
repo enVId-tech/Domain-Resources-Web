@@ -1,9 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { FiGlobe, FiServer, FiMonitor, FiRefreshCw, FiLink, FiCloud } from 'react-icons/fi';
+import { FiServer, FiMonitor, FiRefreshCw, FiLink } from 'react-icons/fi';
 import styles from './styles/status.module.scss';
-import { FaCloudflare } from 'react-icons/fa';
 import { TbBrandCloudflare } from 'react-icons/tb';
 
 interface HealthCheckResponse {
@@ -16,66 +15,152 @@ interface HealthCheckResponse {
 export default function StatusPage() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [mounted, setMounted] = useState(false);
-    const [hostName, setHostName] = useState<string>('loading...');
     const [errorCode, setErrorCode] = useState<string>('00000');
-    const [processingLink, setProcessingLink] = useState<number>(0); // 0: Internet->Server, 1: Server->Client
+    const [animationStage, setAnimationStage] = useState<number>(0); // 0-2 for node progression
     const [failedNode, setFailedNode] = useState<number | null>(null); // null = all pass, 0 = Cloudflare failed, 1 = Server failed, 2 = Client failed
     const [statusMessage, setStatusMessage] = useState<string>('Checking status...');
+    const [statusVerified, setStatusVerified] = useState(false); // Flag to stop animation once status is verified
+    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+    const updateStatus = async () => {
+        try {
+            console.log('[StatusPage] Fetching /api/health-check...');
+            const response = await fetch('/api/health-check', {
+                method: 'GET',
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache'
+                }
+            });
+
+            console.log(`[StatusPage] Response status: ${response.status}, ok: ${response.ok}`);
+            console.log(`[StatusPage] Content-Type: ${response.headers.get('Content-Type')}`);
+
+            if (!response.ok) {
+                console.error(`[StatusPage] Health check returned error status: ${response.status}`);
+                setFailedNode(1);
+                setStatusMessage(`Error ${response.status}: Health Check Endpoint Error\nThe server's health check endpoint is not responding correctly.\n\nNote: Make sure the Wrangler worker is running with 'wrangler dev' in development.`);
+                setStatusVerified(true); // Mark status as verified
+                return;
+            }
+
+            const data: HealthCheckResponse = await response.json();
+            console.log('[StatusPage] Health check response:', data);
+
+            // Check if offline (status is degraded or error code indicates failure)
+            if (data.status === 'degraded' || data.code !== 200) {
+                console.log(`[StatusPage] Lab Alert: ${data.diagnostic} at ${data.timestamp}`);
+
+                // Determine which node failed based on HTTP status code
+                const statusCode = data.code;
+                let failureNode = 1; // Default to server failure
+                let errorTitle = 'Service Error';
+                let errorDescription = 'An unexpected error occurred.';
+
+                // Gateway/Cloudflare errors (502, 504)
+                if (statusCode === 502) {
+                    failureNode = 0;
+                    errorTitle = 'Error 502: Bad Gateway';
+                    errorDescription = 'The gateway received an invalid response. Cloudflare may be experiencing issues.';
+                } else if (statusCode === 504) {
+                    failureNode = 0;
+                    errorTitle = 'Error 504: Gateway Timeout';
+                    errorDescription = 'The request timed out at the gateway. Cloudflare may be experiencing slowness.';
+                }
+                // Server errors (5xx)
+                else if (statusCode === 500) {
+                    failureNode = 1;
+                    errorTitle = 'Error 500: Internal Server Error';
+                    errorDescription = 'The server encountered an unexpected condition.';
+                } else if (statusCode === 501) {
+                    failureNode = 1;
+                    errorTitle = 'Error 501: Not Implemented';
+                    errorDescription = 'The server does not support the functionality required to fulfill the request.';
+                } else if (statusCode === 503) {
+                    failureNode = 1;
+                    errorTitle = 'Error 503: Service Unavailable';
+                    errorDescription = 'The server is currently unavailable or overloaded.';
+                } else if (statusCode >= 500 && statusCode < 600) {
+                    failureNode = 1;
+                    errorTitle = `Error ${statusCode}: Server Error`;
+                    errorDescription = 'The server encountered an error processing your request.';
+                }
+                // Client errors (4xx)
+                else if (statusCode === 400) {
+                    failureNode = 2;
+                    errorTitle = 'Error 400: Bad Request';
+                    errorDescription = 'The request is malformed or invalid.';
+                } else if (statusCode === 401) {
+                    failureNode = 2;
+                    errorTitle = 'Error 401: Unauthorized';
+                    errorDescription = 'Authentication is required to access this resource.';
+                } else if (statusCode === 403) {
+                    failureNode = 2;
+                    errorTitle = 'Error 403: Forbidden';
+                    errorDescription = 'You do not have permission to access this resource.';
+                } else if (statusCode === 404) {
+                    failureNode = 2;
+                    errorTitle = 'Error 404: Not Found';
+                    errorDescription = 'The requested resource could not be found.';
+                } else if (statusCode === 408) {
+                    failureNode = 2;
+                    errorTitle = 'Error 408: Request Timeout';
+                    errorDescription = 'The request took too long to complete.';
+                } else if (statusCode === 429) {
+                    failureNode = 2;
+                    errorTitle = 'Error 429: Too Many Requests';
+                    errorDescription = 'Too many requests have been sent in a given amount of time.';
+                } else if (statusCode >= 400 && statusCode < 500) {
+                    failureNode = 2;
+                    errorTitle = `Error ${statusCode}: Client Error`;
+                    errorDescription = 'The request is invalid or cannot be processed.';
+                }
+
+                setFailedNode(failureNode);
+                setStatusMessage(`${errorTitle}\n${errorDescription}`);
+            } else {
+                setFailedNode(null); // All systems nominal
+                setStatusMessage('All systems operational');
+            }
+            setStatusVerified(true); // Mark status as verified, stop animation
+        } catch (error: any) {
+            console.error('[StatusPage] Health check failed:', error);
+            console.error('[StatusPage] Error message:', error.message);
+            console.error('[StatusPage] Error type:', error.constructor.name);
+            
+            setFailedNode(1); // Default to server failure on fetch error
+            setStatusMessage(`Error: Health Check Failed\nUnable to reach the health check endpoint.\n\nNote: Make sure the Wrangler worker is running with 'wrangler dev' in development.`);
+            setStatusVerified(true); // Mark status as verified even on error
+        }
+    };
 
     useEffect(() => {
-        const getStatus = async () => {
-            try {
-                const response = await fetch('/api/health-check');
-                const data: HealthCheckResponse = await response.json();
+        // Initial check on mount
+        updateStatus();
 
-                // Check if offline (status is degraded or error code indicates failure)
-                if (data.status === 'degraded' || data.code !== 200) {
-                    console.log(`Lab Alert: ${data.diagnostic} at ${data.timestamp}`);
-
-                    // Determine which node failed based on diagnostic and code
-                    if (data.code === 503) {
-                        setFailedNode(1); // Server connection failure
-                        setStatusMessage(`Error 503: Service Unavailable\nThe host '${hostName}' is currently unreachable due to a server connection issue.`);
-                    } else if (data.code === 504) {
-                        setFailedNode(0); // Cloudflare/Gateway timeout
-                        setStatusMessage(`Error 504: Gateway Timeout\nThe request took too long to process. Gateway may be experiencing issues.`);
-                    } else if (data.diagnostic === 'connection_failure') {
-                        setFailedNode(1); // Assume server-side connection issue
-                        setStatusMessage(`Error ${data.code}: Connection Failure\nUnable to establish a connection to the server.`);
-                    } else if (data.diagnostic === 'service_issue') {
-                        setFailedNode(1); // Server is degraded
-                        setStatusMessage(`Error ${data.code}: Service Degraded\nThe server is experiencing issues but may still be partially operational.`);
-                    }
-                } else {
-                    setFailedNode(null); // All systems nominal
-                    setStatusMessage('All systems operational');
-                }
-            } catch (error: any) {
-                console.error('Health check failed:', error);
-                setFailedNode(1); // Default to server failure on fetch error
-                setStatusMessage('Error 503: Service Unavailable\nUnable to perform health check. The server may be offline.');
-            }
-        };
-
-        getStatus();
-
-        // Poll every 30 seconds for continuous status updates
-        const interval = setInterval(getStatus, 30000);
+        // Poll every 5 seconds for frequent status updates (better for testing)
+        const interval = setInterval(updateStatus, 5000);
         return () => clearInterval(interval);
-    }, [hostName]);
+    }, []);
 
-    // Determine node states based on progression and failures
+    // Determine node states based on animation stage and failures
     const getNodeState = (nodeIndex: number) => {
-        // If there's a failed node
+        // If there's a failed node, show the failure
         if (failedNode !== null) {
             if (nodeIndex < failedNode) return 'success'; // Nodes before failure succeeded
             return 'failed'; // The failed node and all nodes after it
         }
-        // All succeed
-        if (nodeIndex === 0) return 'success'; // Internet always succeeds
-        if (nodeIndex === 1 && processingLink >= 1) return 'success';
-        if (nodeIndex === 2 && processingLink >= 1) return 'success';
-        return 'pending';
+        
+        // If status is verified and no failures, all nodes are success
+        if (statusVerified) {
+            return 'success'; // All nodes are green when verified and no failures
+        }
+        
+        // While waiting for verification, show animation progression
+        if (nodeIndex === 0) return 'success'; // Cloudflare always green
+        if (nodeIndex === 1 && animationStage >= 1) return 'success'; // Server succeeds at stage 1
+        if (nodeIndex === 2 && animationStage >= 2) return 'success'; // Client succeeds at stage 2
+        return 'pending'; // All others are gray/pending
     };
 
     // Determine if a node failed due to cascade (failed but not the primary failure)
@@ -92,12 +177,32 @@ export default function StatusPage() {
         return getNodeState(connectionIndex);
     };
 
+    // Set mounted flag on component mount
     useEffect(() => {
         setMounted(true);
-        // Update host name on client side only
-        if (typeof window !== 'undefined') {
-            setHostName(window.location.host);
-        }
+        
+        // Generate error code on mount
+        const randomErrorCode = Math.floor(Math.random() * 0xFFFFF).toString(16).toUpperCase().padStart(5, '0');
+        setErrorCode(randomErrorCode);
+    }, []);
+
+    // Smooth animation loop - runs independently from health checks
+    useEffect(() => {
+        // Only set up animation once on mount
+        if (intervalRef.current) return;
+
+        // Fixed delay of 225ms (middle of 150-300ms range) for consistent animation
+        const ANIMATION_DELAY = 225;
+        intervalRef.current = setInterval(() => {
+            setAnimationStage(prev => {
+                // Stop at stage 2 - don't cycle back to 0
+                if (prev >= 2) return 2;
+                return prev + 1;
+            });
+        }, ANIMATION_DELAY);
+
+        // Don't clean up - let the animation run continuously
+        // The interval will be cleared when the page unmounts
     }, []);
 
     useEffect(() => {
@@ -164,24 +269,11 @@ export default function StatusPage() {
 
         window.addEventListener('resize', handleResize);
 
-        if (mounted) {
-            const randomErrorCode = Math.floor(Math.random() * 0xFFFFF).toString(16).toUpperCase().padStart(5, '0');
-            setErrorCode(randomErrorCode);
-        }
-
         return () => {
             clearInterval(interval);
             window.removeEventListener('resize', handleResize);
         };
     }, [mounted]);
-
-    // Animate dots between nodes
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setProcessingLink(prev => (prev + 1) % 2);
-        }, Math.random() * 50 + 100); // Random between 100-150ms
-        return () => clearInterval(timer);
-    }, []);
 
     return (
         <div className={styles.errorContainer}>
@@ -279,7 +371,7 @@ export default function StatusPage() {
                 <div className={styles.statusCode}>CODE: 0x{errorCode}</div>
 
                 <div className={styles.actionButtons}>
-                    <button onClick={() => window.location.reload()} className={styles.actionButton}>
+                    <button onClick={updateStatus} className={styles.actionButton}>
                         <FiRefreshCw className={styles.buttonIcon} />
                         RETRY
                     </button>

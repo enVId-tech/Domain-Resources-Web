@@ -2,9 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import styles from '@/styles/links.module.scss';
-import { DASHBOARD_LINKS, LinkDocument } from '@/config/links';
-import { getLinksStatus } from '@/utils/status';
-
+import { DASHBOARD_LINKS, type LinkDocument } from '../config/links';
+import { getLinksStatus } from '../utils/status';
 export default function Links() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const cursorRef = useRef<HTMLSpanElement>(null);
@@ -73,7 +72,7 @@ export default function Links() {
         const fontSize = 12;
         const columns = Math.floor(canvas.width / fontSize);
         const dropsTop: number[] = Array(columns).fill(1);
-        const dropsBottom: number[] = Array(columns).fill(1);
+        // const dropsBottom: number[] = Array(columns).fill(1);
 
         const draw = () => {
             ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
