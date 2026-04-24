@@ -1,15 +1,15 @@
 {
-  "name": "erick-gatekeeper",
+  "name": "domain-resources-worker",
   "main": "src/worker.ts",
   "compatibility_date": "2026-04-23",
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS"
   },
-  "kv_namespaces": [
-    {
-      "binding": "STATUS_KV",
-      "id": "xxxx-your-id-here-xxxx"
-    }
-  ]
+  // "kv_namespaces": [
+  //   {
+  //     "binding": "STATUS_KV",
+  //     "id": "xxxx-your-id-here-xxxx"
+  //   }
+  // ]
 }
