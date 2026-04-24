@@ -1,0 +1,8 @@
+name = "domain-resources-web"
+main = "src/worker.ts"
+compatibility_date = "2026-04-24
+
+# Add this section
+[[routes]]
+pattern = "etran.dev/*"
+custom_domain = true

@@ -60,6 +60,16 @@ export default {
     }
 
     console.log(`[Worker] Serving index.html for SPA routing`);
+    
+    // If status is 200, serve the requested page normally
+    if (statusCode === 200) {
+      console.log(`[Worker] Status is 200 (OK) - serving requested resource normally`);
+      const response = await env.ASSETS.fetch(new Request(new URL(url.pathname, request.url)));
+      return response;
+    }
+    
+    // If status is not 200, serve the status page to show the error
+    console.log(`[Worker] Status is ${statusCode} (NOT OK) - serving status page`);
     const response = await env.ASSETS.fetch(new Request(new URL('/index.html', request.url)));
     const modded = new Response(response.body, response);
     modded.headers.set("x-lab-status-code", statusCode.toString());
