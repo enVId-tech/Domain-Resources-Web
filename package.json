@@ -11,12 +11,12 @@
   },
   "dependencies": {
     "dotenv": "^17.4.2",
-    "mongoose": "^9.7.4",
+    "mongoose": "^9.8.0",
     "next": "16.2.10",
     "react": "19.2.7",
     "react-dom": "19.2.7",
     "react-icons": "^5.7.0",
-    "sass": "^1.101.0"
+    "sass": "^1.101.3"
   },
   "devDependencies": {
     "@types/node": "^26",
