@@ -2,47 +2,27 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import Window from "@/components/Window";
+import StageTrace from "@/components/StageTrace";
 import Terminal from "@/components/Terminal";
+import Window from "@/components/Window";
 import { useLocation } from "@/hooks/useLocation";
 import type { TermLine } from "@/hooks/useTerminal";
+import { DEFAULT_CODE, describe } from "@/lib/status";
 import shared from "@/styles/shared.module.scss";
 import styles from "@/styles/error.module.scss";
 
-const STATUS: Record<number, [string, string]> = {
-  400: ["Bad Request", "The server could not understand the request."],
-  401: ["Unauthorized", "Authentication is required to view this resource."],
-  403: ["Forbidden", "You don't have permission to access this resource."],
-  404: ["Not Found", "The requested resource does not exist on this server."],
-  408: ["Request Timeout", "The server timed out waiting for the request."],
-  429: ["Too Many Requests", "Slow down and try again in a moment."],
-  500: ["Internal Server Error", "Something went wrong on the server."],
-  502: ["Bad Gateway", "The upstream server returned an invalid response."],
-  503: ["Service Unavailable", "This service is temporarily offline."],
-  504: ["Gateway Timeout", "The upstream server took too long to respond."],
-};
-
-function describe(code: number): [string, string] {
-  return (
-    STATUS[code] ??
-    (code >= 500
-      ? ["Server Error", "The server failed to complete the request."]
-      : ["Client Error", "The request could not be completed."])
-  );
-}
-
 /**
- * Shared error screen. Prerendered as a plain 404, then personalised in the browser:
- * ?code=502 switches the status (400-599), and the host/path come from the current URL.
+ * Shared error screen, shown at /, /error and for every missing path (404.html).
+ * Prerendered once, then personalised in the browser: ?code=502 switches the status (400-599),
+ * and the host comes from the current URL.
  */
 export default function ErrorScreen() {
-  const { host, path, search } = useLocation();
-  const [ref, setRef] = useState("");
+  const { host, search } = useLocation();
+  const [ref, setRef] = useState("00000");
 
   const requested = parseInt(new URLSearchParams(search).get("code") ?? "", 10);
-  const code = requested >= 400 && requested <= 599 ? requested : 404;
+  const code = requested >= 400 && requested <= 599 ? requested : DEFAULT_CODE;
   const [title, detail] = describe(code);
-  const shownPath = path === "/404.html" || path === "" ? "/" : path;
 
   useEffect(() => {
     let stale = false;
@@ -67,35 +47,39 @@ export default function ErrorScreen() {
     () =>
       host
         ? [
-            { cmd: `resolve ${host}` },
-            { out: "host resolved", tone: "ok" },
-            { cmd: `GET ${shownPath}` },
-            { out: `${code} ${title}`, tone: "err" },
-            {
-              out:
-                code >= 500
-                  ? "upstream is not responding. try again shortly."
-                  : "check the address, or browse the directory.",
-            },
+            { cmd: "Analyzing error..." },
+            { cmd: "Checking system logs..." },
+            { cmd: `Host '${host}' status: unreachable` },
+            { cmd: "Please try again later." },
           ]
         : null,
-    [host, shownPath, code, title],
+    [host],
   );
 
   return (
     <Window title={`error @ ${host || "localhost"}`} tag="offline" tone="err" center>
-      <div className={styles.head}>
-        <div className={styles.code}>{code}</div>
-        <h1 className={styles.headline}>{title}</h1>
-        <p className={styles.detail}>{detail}</p>
-        <div className={styles.ref}>{ref && `ref 0x${ref}`}</div>
+      <div className={styles.hero}>
+        <div className={styles.icon} aria-hidden="true">
+          !
+        </div>
+        <h1 className={styles.title}>SYSTEM ERROR</h1>
+        <div className={styles.code}>ERROR_CODE: 0x{ref}</div>
+      </div>
+
+      <StageTrace host={host} />
+
+      <div className={styles.message}>
+        <strong>
+          Error {code}: {title}
+        </strong>
+        <p>{detail}</p>
       </div>
 
       <div className={styles.actions}>
-        <button className={shared.btn} type="button" onClick={() => window.location.reload()}>
+        <button className={`${shared.btn} ${shared.btnWide}`} type="button" onClick={() => window.location.reload()}>
           <span aria-hidden="true">&gt;</span> Retry
         </button>
-        <Link className={`${shared.btn} ${shared.ghost}`} href="/">
+        <Link className={`${shared.btn} ${shared.btnWide}`} href="/links">
           <span aria-hidden="true">&gt;</span> Links
         </Link>
       </div>
