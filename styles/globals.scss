@@ -1,17 +1,20 @@
-// Global theme. Everything component-specific lives in the *.module.scss files.
+// Global theme: neon matrix green on black, with red reserved for errors.
+// Everything component-specific lives in the *.module.scss files.
 // No external fonts or assets, so the error page still renders when the network is unhappy.
 
 :root {
-  --bg: #070908;
-  --line: #17241d;
-  --line-strong: #243a2e;
-  --text: #c6d4cb;
-  --bright: #e8f1ec;
-  --dim: #6b8174;
-  --accent: #62e394;
-  --accent-soft: rgba(98, 227, 148, 0.14);
-  --err: #ff6b6b;
-  --mono: ui-monospace, "JetBrains Mono", "SF Mono", "Cascadia Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --bg: #000;
+  --accent: #00ff41;
+  --accent-soft: rgba(0, 255, 65, 0.1);
+  --glow: rgba(0, 255, 65, 0.35);
+  --line: rgba(0, 255, 65, 0.18);
+  --line-strong: rgba(0, 255, 65, 0.55);
+  --text: #6ff58f;
+  --bright: #c8ffd8;
+  --dim: #3ea760;
+  --err: #ff2a2a;
+  --err-glow: rgba(255, 42, 42, 0.55);
+  --mono: "Courier New", Courier, "Liberation Mono", ui-monospace, Menlo, Consolas, monospace;
   color-scheme: dark;
 }
 
@@ -33,8 +36,8 @@ body {
 }
 
 ::selection {
-  background: rgba(98, 227, 148, 0.28);
-  color: var(--bright);
+  background: rgba(0, 255, 65, 0.3);
+  color: #fff;
 }
 
 a {

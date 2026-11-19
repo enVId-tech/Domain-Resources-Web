@@ -17,7 +17,7 @@
   width: 100%;
   height: 100%;
   z-index: 0;
-  opacity: 0.2;
+  opacity: 0.55;
   pointer-events: none;
 }
 
@@ -27,8 +27,8 @@
   z-index: 1;
   pointer-events: none;
   background:
-    radial-gradient(ellipse at 50% 40%, transparent 30%, rgba(0, 0, 0, 0.78) 100%),
-    repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.014) 0 1px, transparent 1px 3px);
+    radial-gradient(ellipse at 50% 45%, transparent 45%, rgba(0, 0, 0, 0.6) 100%),
+    repeating-linear-gradient(to bottom, rgba(0, 255, 65, 0.025) 0 1px, transparent 1px 3px);
 }
 
 .shell {
@@ -40,18 +40,18 @@
 }
 
 .shellNarrow {
-  max-width: 720px;
+  max-width: 700px;
   padding-top: 32px;
   padding-bottom: 32px;
 }
 
 .window {
-  border: 1px solid var(--line-strong);
+  border: 1px solid var(--accent);
   border-radius: 10px;
-  background: rgba(10, 15, 12, 0.86);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.65);
+  background: rgba(0, 10, 3, 0.88);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 0 28px var(--glow), inset 0 0 44px rgba(0, 255, 65, 0.05);
   overflow: hidden;
 }
 
@@ -110,6 +110,7 @@
   height: 1.1em;
   margin-left: 2px;
   background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
   vertical-align: -0.2em;
   animation: blink 1.1s steps(1) infinite;
 }
@@ -141,30 +142,37 @@
 .btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 8px 16px;
   font: inherit;
   font-size: 13px;
-  letter-spacing: 0.06em;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--accent);
   background: transparent;
   border: 1px solid var(--line-strong);
   border-radius: 6px;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
 
   &:hover,
   &:focus-visible {
     background: var(--accent-soft);
     border-color: var(--accent);
-    color: var(--bright);
+    color: #fff;
+    box-shadow: 0 0 16px var(--glow);
     outline: none;
   }
 }
 
-.ghost {
-  color: var(--dim);
+// Big equal-width buttons like the original error page.
+.btnWide {
+  flex: 1;
+  padding: 14px 18px;
+  font-size: 15px;
+  border: 2px solid var(--accent);
 }
 
 @media (max-width: 560px) {

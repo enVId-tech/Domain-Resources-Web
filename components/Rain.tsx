@@ -5,7 +5,7 @@ import styles from "@/styles/shared.module.scss";
 
 const SIZE = 14;
 
-/** Calm, top-down binary rain behind the page. Skipped for reduced-motion users. */
+/** Binary rain falling from both edges behind the page. Skipped for reduced-motion users. */
 export default function Rain() {
   const ref = useRef<HTMLCanvasElement>(null);
 
@@ -17,7 +17,8 @@ export default function Rain() {
 
     let w = 0;
     let h = 0;
-    let drops: { y: number; v: number }[] = [];
+    let top: { y: number; v: number }[] = [];
+    let bottom: { y: number; v: number }[] = [];
     let last = 0;
     let raf = 0;
 
@@ -28,30 +29,34 @@ export default function Rain() {
       canvas.width = w * dpr;
       canvas.height = h * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.fillStyle = "#070908";
+      ctx.fillStyle = "#000";
       ctx.fillRect(0, 0, w, h);
-      drops = Array.from({ length: Math.ceil(w / SIZE) }, () => ({
-        y: Math.random() * -60,
-        v: 0.25 + Math.random() * 0.5,
-      }));
+      const make = () =>
+        Array.from({ length: Math.ceil(w / SIZE) }, () => ({ y: Math.random() * -60, v: 0.3 + Math.random() * 0.6 }));
+      top = make();
+      bottom = make();
     };
 
     const frame = (t: number) => {
       raf = requestAnimationFrame(frame);
-      if (document.hidden || t - last < 45) return; // ~22 fps
+      if (document.hidden || t - last < 33) return; // ~30 fps
       last = t;
-      ctx.fillStyle = "rgba(7, 9, 8, 0.14)";
+      ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
       ctx.fillRect(0, 0, w, h);
-      ctx.fillStyle = "#62e394";
+      ctx.fillStyle = "#00ff41";
       ctx.font = `${SIZE}px monospace`;
-      drops.forEach((d, i) => {
-        d.y += d.v;
-        ctx.fillText(Math.random() < 0.5 ? "0" : "1", i * SIZE, d.y * SIZE);
-        if (d.y * SIZE > h && Math.random() > 0.975) {
-          d.y = 0;
-          d.v = 0.25 + Math.random() * 0.5;
-        }
-      });
+      const step = (drops: typeof top, fromBottom: boolean) =>
+        drops.forEach((d, i) => {
+          d.y += d.v;
+          const y = fromBottom ? h - d.y * SIZE : d.y * SIZE;
+          ctx.fillText(Math.random() < 0.5 ? "0" : "1", i * SIZE, y);
+          if (d.y * SIZE > h && Math.random() > 0.975) {
+            d.y = 0;
+            d.v = 0.3 + Math.random() * 0.6;
+          }
+        });
+      step(top, false);
+      step(bottom, true);
     };
 
     resize();
