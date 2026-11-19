@@ -1,0 +1,44 @@
+[
+  {
+    "title": "GitHub",
+    "url": "https://github.com/enVid-tech",
+    "description": "Source code repositories",
+    "icon": "🌐"
+  },
+  {
+    "title": "Portfolio",
+    "url": "https://etran.dev",
+    "description": "My work and projects",
+    "icon": "📄"
+  },
+  {
+    "title": "AP Calculus BC Textbook",
+    "url": "https://calcbc.etran.dev/",
+    "description": "AP Calculus BC online textbook",
+    "icon": "📚"
+  },
+  {
+    "title": "Discord",
+    "url": "https://discord.etran.dev/",
+    "description": "My discord profile",
+    "icon": "💬"
+  },
+  {
+    "title": "Youtube",
+    "url": "https://www.youtube.com/@enVidGaming",
+    "description": "My gaming channel",
+    "icon": "📺"
+  },
+  {
+    "title": "Minecraft SMP Map",
+    "url": "https://smp.etran.dev/",
+    "description": "An active rendering of the main SMP server",
+    "icon": "🗺️"
+  },
+  {
+    "title": "WebDav UI",
+    "url": "https://webdavui.etran.dev/",
+    "description": "My online file system service",
+    "icon": "📁"
+  }
+]
