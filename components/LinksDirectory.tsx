@@ -113,9 +113,9 @@ export default function LinksDirectory() {
     <Window title={`${host || "localhost"}:~/links`} tag="online">
       <header className={styles.head}>
         <div>
-          <h1 className={styles.title}>Access Directory</h1>
+          <h1 className={styles.title}>ACCESS DIRECTORY</h1>
           <p className={styles.sub}>
-            <span className={shared.prompt}>$</span>cat links.json
+            <span className={shared.prompt}>$</span>cat links.db
           </p>
         </div>
         <div className={styles.stats} aria-live="polite">
@@ -158,6 +158,7 @@ export default function LinksDirectory() {
               style={{ "--i": i } as CSSProperties}
             >
               <div className={styles.cardTop}>
+                <div className={styles.left}>
                 <div className={styles.icon}>
                   {isImage(link.icon) ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -165,6 +166,8 @@ export default function LinksDirectory() {
                   ) : (
                     (link.icon ?? link.title.charAt(0).toUpperCase())
                   )}
+                </div>
+                <span className={styles.index}>[{String(i + 1).padStart(2, "0")}]</span>
                 </div>
                 <span className={styles.status} data-state={state}>
                   <i />
@@ -181,12 +184,14 @@ export default function LinksDirectory() {
 
               <div className={styles.foot}>
                 <code title={link.url}>{link.url.replace(/^https?:\/\//, "").replace(/\/$/, "")}</code>
-                <button
-                  type="button"
-                  className={`${styles.copy} ${copied === link.url ? styles.copied : ""}`}
-                  onClick={() => copy(link.url)}
-                >
-                  {copied === link.url ? "copied" : "copy"}
+              </div>
+
+              <div className={styles.actions}>
+                <a className={shared.btn} href={link.url} target="_blank" rel="noopener noreferrer">
+                  <span aria-hidden="true">&gt;</span> Access
+                </a>
+                <button type="button" className={shared.btn} onClick={() => copy(link.url)}>
+                  <span aria-hidden="true">&gt;</span> {copied === link.url ? "Copied" : "Copy"}
                 </button>
               </div>
             </article>
