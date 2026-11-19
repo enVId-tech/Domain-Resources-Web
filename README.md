@@ -4,10 +4,13 @@ Next.js (App Router, React, TypeScript, SCSS modules) compiled to **fully static
 
 | Route | Output | What it is |
 | --- | --- | --- |
-| `/` | `out/index.html` | Links directory, loaded from `/data/links.json` |
-| any missing path | `out/404.html` | Error page, from `app/not-found.tsx` |
-| `/error` | `out/error.html` | Same error page with a 200 status (for testing/linking) |
-| `/404.html?code=502` | | Same page for another status (400-599) |
+| `/` | `out/index.html` | The "origin is down" error page: SYSTEM ERROR plus a Browser, Cloudflare and Host trace where the host fails |
+| `/links` | `out/links.html` | Links directory, loaded from `/data/links.json` |
+| `/error` | `out/error.html` | Alias of `/`, kept for existing links and proxy error-page settings |
+| any missing path | `out/404.html` | Same error page (from `app/not-found.tsx`), served with a 404 status |
+| `/?code=502` | | Same page for another status (400-599). The default is 521, "Web Server Is Down" |
+
+The page is meant to be what Cloudflare shows when your server is offline, so the first two trace stages pass and the host always fails. When the page really is served through Cloudflare, the Cloudflare stage also shows the edge location (read from `/cdn-cgi/trace`).
 
 ## Develop
 
