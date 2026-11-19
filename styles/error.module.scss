@@ -1,0 +1,48 @@
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.code {
+  font-size: clamp(64px, 16vw, 128px);
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  color: var(--err);
+  text-shadow: 0 0 36px rgba(255, 107, 107, 0.22);
+}
+
+.headline {
+  margin: 8px 0 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--bright);
+}
+
+.detail {
+  margin: 0;
+  color: var(--dim);
+  max-width: 52ch;
+}
+
+.ref {
+  margin-top: 10px;
+  min-height: 1.6em;
+  font-size: 12px;
+  color: var(--dim);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 28px 0;
+}
+
+.log {
+  min-height: 150px;
+  padding-top: 18px;
+  border-top: 1px dashed var(--line-strong);
+  font-size: 13px;
+}

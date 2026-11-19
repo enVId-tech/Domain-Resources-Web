@@ -1,0 +1,48 @@
+// Global theme. Everything component-specific lives in the *.module.scss files.
+// No external fonts or assets, so the error page still renders when the network is unhappy.
+
+:root {
+  --bg: #070908;
+  --line: #17241d;
+  --line-strong: #243a2e;
+  --text: #c6d4cb;
+  --bright: #e8f1ec;
+  --dim: #6b8174;
+  --accent: #62e394;
+  --accent-soft: rgba(98, 227, 148, 0.14);
+  --err: #ff6b6b;
+  --mono: ui-monospace, "JetBrains Mono", "SF Mono", "Cascadia Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.6 var(--mono);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: rgba(98, 227, 148, 0.28);
+  color: var(--bright);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
