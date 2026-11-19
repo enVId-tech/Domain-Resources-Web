@@ -1,15 +1,11 @@
 {
-  "name": "domain-resources-worker",
-  "main": "src/worker.ts",
-  "compatibility_date": "2026-04-23",
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "domain-resources-web",
+  "compatibility_date": "2026-11-19",
   "assets": {
-    "directory": "./dist",
-    "binding": "ASSETS"
-  },
-  // "kv_namespaces": [
-  //   {
-  //     "binding": "STATUS_KV",
-  //     "id": "xxxx-your-id-here-xxxx"
-  //   }
-  // ]
+    "directory": "./out",
+    // next build writes out/404.html (from app/not-found.tsx); serve it with a 404 status for any miss.
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash"
+  }
 }
