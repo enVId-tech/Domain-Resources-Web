@@ -1,11 +1,8 @@
-import type { Metadata } from "next";
 import ErrorScreen from "@/components/ErrorScreen";
+import { errorMetadata } from "@/lib/status";
 
-// /error shows the error page with a 200 status: handy for testing and for linking to it.
-export const metadata: Metadata = {
-  title: "Error",
-  robots: { index: false },
-};
+// /error is kept as an alias of / so existing links and proxy error-page settings keep working.
+export const metadata = errorMetadata();
 
 export default function ErrorPage() {
   return <ErrorScreen />;
