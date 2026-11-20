@@ -13,14 +13,14 @@ import styles from "@/styles/error.module.scss";
 
 /**
  * Shared error screen, shown at /, /error and for every missing path (404.html).
- * Prerendered once, then personalised in the browser: ?code=502 switches the status (400-599),
- * and the host comes from the current URL.
+ * Prerendered once, then personalised in the browser: ?code=502 switches the status (400-599), the
+ * Cloudflare Worker can pass the origin's real status in a meta tag, and the host comes from the URL.
  */
 export default function ErrorScreen() {
-  const { host, search } = useLocation();
+  const { host, search, metaCode } = useLocation();
   const [ref, setRef] = useState("00000");
 
-  const requested = parseInt(new URLSearchParams(search).get("code") ?? "", 10);
+  const requested = parseInt(new URLSearchParams(search).get("code") || metaCode, 10);
   const code = requested >= 400 && requested <= 599 ? requested : DEFAULT_CODE;
   const [title, detail] = describe(code);
 
