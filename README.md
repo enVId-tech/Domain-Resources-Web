@@ -60,7 +60,7 @@ The container runs as the unprivileged `node` user, so the mounted file must be 
 `worker/index.ts` is a small Worker that sits in front of your real site. For every request it asks your origin first:
 
 - **Origin healthy:** the response passes straight through, untouched.
-- **Origin down** (no response at all, or a 502, 503, 504 or 520-526 from Cloudflare's origin leg): it serves this error page with a real `503` and `Retry-After`, so monitors and search engines see an outage. The page shows the status the origin actually produced, such as `522`, and `521` when there was no response at all.
+- **Origin down** (no response at all, or a 502, 503, 504, 520-526 or 530 from the origin leg; 530 is what a disconnected Cloudflare Tunnel produces): it serves this error page with a real `503` and `Retry-After`, so monitors and search engines see an outage. The page shows the status the origin actually produced, such as `522`, and `521` when there was no response at all.
 - **While it is down**, `/links` and the page's own scripts and styles still load, so the LINKS button works.
 - Other app errors (404, 500, ...) pass through, because they mean the server is up. Edit `isDown()` to change what counts as down.
 
@@ -70,10 +70,12 @@ npx wrangler login
 npx wrangler deploy      # or: npm run deploy
 ```
 
-With no routes configured this only deploys to `<name>.<account>.workers.dev`, which always previews the down page and touches no real traffic. To put it in front of your domain, uncomment `routes` in `wrangler.jsonc` and deploy again.
+`wrangler.jsonc` routes `etran.dev/*` and `*.etran.dev/*`, so the Worker covers the whole domain once it is deployed. The records must be proxied (orange cloud) and each subdomain needs a DNS record, or a proxied wildcard record, to reach Cloudflare at all. To preview first without touching real traffic, remove `routes` and deploy: it then goes only to `<name>.<account>.workers.dev`, which always shows the down page.
 
 - **Use Routes, not a Custom Domain.** A Worker on a Custom Domain can't fetch its own hostname as the origin; Cloudflare returns a 522.
-- The Worker now runs for every request on those routes (`run_worker_first`), so Workers request limits apply to that traffic. Consider each route's failure mode (fail open) so a problem with the Worker never takes the site down.
+- **Request limit.** The Workers Free plan allows 100,000 requests per day across all your Workers (resets at midnight UTC), and past that Cloudflare returns error 1027. Workers Paid has no daily limit: $5/month minimum, 10 million requests included, then $0.30 per extra million. With `run_worker_first`, every request on the routes counts, including images, scripts and API calls, not only page views. Check your zone's daily request count under Analytics before deploying to the whole domain.
+- **Set the routes to fail open.** Each route has a fail mode toggle in the dashboard. Fail open bypasses the Worker if it fails or hits the limit, so the site keeps working normally. Fail closed returns a Cloudflare 1027 error page instead.
+- **Cloudflare Tunnel.** A disconnected tunnel returns error 1033 with HTTP 530, which is treated as down. A tunnel that is connected while the app behind it (for example Nginx Proxy Manager) is stopped returns a 502, which is also treated as down.
 - It can only tell when the origin answers with a failure. A site that is up but broken, returning 200 with an error page, still passes through.
 - The `ASSETS` binding serves `out/` with `not_found_handling: "404-page"`. With Cloudflare Workers Builds, set the build command to `npm run build` and the deploy command to `npx wrangler deploy`.
 - On a Cloudflare paid plan, the dashboard's Custom Error Rules or Error Pages can also serve a page for 5xx errors without a Worker. They are not available on the Free plan, which is why the Worker is the default here.
