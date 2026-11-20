@@ -16,9 +16,13 @@ interface Env {
 /** Shown when the origin gave no response at all (connection refused, timeout, ...). */
 const DEFAULT_CODE = 521;
 
-/** Statuses that mean "the server behind this domain is down" rather than "the app returned an error". */
+/**
+ * Statuses that mean "the server behind this domain is down" rather than "the app returned an error":
+ * 502-504 (for example Nginx Proxy Manager or a Cloudflare Tunnel that can't reach the app), 520-526
+ * (Cloudflare couldn't talk to the origin) and 530 (error 1033 when the Cloudflare Tunnel is disconnected).
+ */
 function isDown(status: number): boolean {
-  return status === 502 || status === 503 || status === 504 || (status >= 520 && status <= 526);
+  return status === 502 || status === 503 || status === 504 || (status >= 520 && status <= 526) || status === 530;
 }
 
 const DOWN_HEADERS = {

@@ -22,6 +22,8 @@ const STATUS: Record<number, [string, string]> = {
   524: ["A Timeout Occurred", "The origin server took too long to respond."],
   525: ["SSL Handshake Failed", "A secure connection to the origin could not be made."],
   526: ["Invalid SSL Certificate", "The origin's SSL certificate could not be validated."],
+  // Cloudflare 1xxx errors surface as 530, e.g. 1033 when the Cloudflare Tunnel is disconnected
+  530: ["Connection to Server Failed", "Cloudflare couldn't reach the server behind this domain."],
 };
 
 export function describe(code: number): [string, string] {
