@@ -11,14 +11,13 @@
     // next build writes out/404.html (from app/not-found.tsx).
     "not_found_handling": "404-page",
     "html_handling": "auto-trailing-slash"
-  }
+  },
 
-  // Without routes this only deploys to <name>.<account>.workers.dev, which always previews the
-  // down page and touches no real traffic. To put it in front of your domain, add Routes (not a
-  // Custom Domain: a Worker can't use its own hostname as the origin) and deploy again:
-  //
-  // "routes": [
-  //   { "pattern": "etran.dev/*", "zone_name": "etran.dev" },
-  //   { "pattern": "*.etran.dev/*", "zone_name": "etran.dev" }
-  // ]
+  // Put the Worker in front of the whole domain. These are Routes, not a Custom Domain: a Worker can't
+  // use its own hostname as the origin. Remove "routes" to deploy only to <name>.<account>.workers.dev
+  // (which always previews the down page and touches no real traffic).
+  "routes": [
+    { "pattern": "etran.dev/*", "zone_name": "etran.dev" },
+    { "pattern": "*.etran.dev/*", "zone_name": "etran.dev" }
+  ]
 }
