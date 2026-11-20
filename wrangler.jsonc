@@ -1,11 +1,24 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "domain-resources-web",
+  "main": "worker/index.ts",
   "compatibility_date": "2026-11-19",
   "assets": {
     "directory": "./out",
-    // next build writes out/404.html (from app/not-found.tsx); serve it with a 404 status for any miss.
+    "binding": "ASSETS",
+    // Run the Worker for every request so it can check the origin before serving anything.
+    "run_worker_first": true,
+    // next build writes out/404.html (from app/not-found.tsx).
     "not_found_handling": "404-page",
     "html_handling": "auto-trailing-slash"
   }
+
+  // Without routes this only deploys to <name>.<account>.workers.dev, which always previews the
+  // down page and touches no real traffic. To put it in front of your domain, add Routes (not a
+  // Custom Domain: a Worker can't use its own hostname as the origin) and deploy again:
+  //
+  // "routes": [
+  //   { "pattern": "etran.dev/*", "zone_name": "etran.dev" },
+  //   { "pattern": "*.etran.dev/*", "zone_name": "etran.dev" }
+  // ]
 }
